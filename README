@@ -12,7 +12,34 @@ SYNOPSIS
                 is(ref($plurks), "ARRAY", "Received latest plurks");
             }
         );
+
+        my $v = AE::cv;
         $p->start;
+        $v->recv;
+
+METHODS
+    reg_cb( x => $cb, ...)
+        Register a callback for event x. See below for the list of events.
+
+    start
+        Start polling plurk.com for plurks. In the current implementation,
+        it only checks new plurks ever 60 seconds.
+
+    add_plurk( $content )
+        Add a new plurk with the given text $content.
+
+    delete_plurk( $id )
+        Delete the plurk with the given plurk $id.
+
+EVENTS
+    unread_plurks
+        Arguments to callback: ($self, $plurks)
+
+        $self is the "AnyEvent::Plurk" object which emits this event, and
+        $plurks is the arrayref to the list of plurks just receieved.
+
+        Each elements in $plurks is a hashref. See Net::Plurk for the
+        explaination of the its keys.
 
 AUTHOR
     Kang-min Liu "<gugod@gugod.org>"

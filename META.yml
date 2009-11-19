@@ -22,10 +22,11 @@ no_index:
 requires:
   AnyEvent: 5.202
   Net::Plurk: 1258308569
+  Object::Event: 1.21
   common::sense: 2.02
   parent: 0.223
   perl: 5.8.0
 resources:
   license: http://opensource.org/licenses/mit-license.php
   repository: http://github.com/gugod/AnyEvent-Plurk
-version: 0.03
+version: 0.04
