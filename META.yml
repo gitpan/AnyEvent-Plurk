@@ -30,4 +30,4 @@ requires:
 resources:
   license: http://opensource.org/licenses/mit-license.php
   repository: http://github.com/gugod/AnyEvent-Plurk
-version: 0.10
+version: 0.11
