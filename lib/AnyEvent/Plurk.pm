@@ -1,5 +1,5 @@
 package AnyEvent::Plurk;
-our $VERSION = "0.11";
+our $VERSION = "0.12";
 
 use 5.008;
 use common::sense    2.02;
@@ -9,8 +9,8 @@ use AnyEvent         5.202;
 use AnyEvent::HTTP   1.44;
 
 use JSON 2.15 qw(to_json from_json);
-use URI;
 
+use URI;
 use Carp "croak";
 use POSIX qw(strftime);
 
@@ -87,18 +87,31 @@ sub login {
 
 sub _start_polling {
     my $self = shift;
+    $self->{__polling_time_offset} ||= current_time_offset;
 
     $self->send_request(
-        "Timeline/getUnreadPlurks",
-        {},
+        "Polling/getPlurks",
+        {
+            offset => $self->{__polling_time_offset}
+        },
         sub {
             my ($data, $header) = @_;
+
             if ($header->{Status} == 400) {
-                say $data;
+                # say $data;
             }
             else {
-                my $unread_plurks = from_json($data)->{plurks};
-                $self->event("unread_plurks" => $unread_plurks);
+                $data = from_json($data);
+                my $unread_plurks = $data->{plurks};
+                if (@$unread_plurks) {
+                    my $users = $data->{plurk_users};
+                    for my $pu (@$unread_plurks) {
+                        $pu->{owner} = $users->{$pu->{owner_id}} if $users->{$pu->{owner_id}};
+                    }
+
+                    $self->event("unread_plurks" => $unread_plurks);
+                    $self->{__polling_time_offset} = current_time_offset;
+                }
             }
 
             $self->{__polling_timer} = AE::timer 60, 0, sub {
